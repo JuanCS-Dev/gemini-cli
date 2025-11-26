@@ -47,6 +47,7 @@ import { isFunctionResponse } from '../utils/messageInspectors.js';
 import { partListUnionToString } from './geminiRequest.js';
 import type { ModelConfigKey } from '../services/modelConfigService.js';
 import { estimateTokenCountSync } from '../utils/tokenCalculation.js';
+import { log } from './loggingContentGenerator.js';
 
 export enum StreamEventType {
   /** A regular content chunk from the API. */
@@ -704,6 +705,11 @@ export class GeminiChat {
     // - No finish reason, OR
     // - MALFORMED_FUNCTION_CALL finish reason OR
     // - Empty response text (e.g., only thoughts with no actual content)
+    log({
+      hasToolCall,
+      finishReason,
+      responseTextIsEmpty: responseText.length === 0,
+    });
     if (!hasToolCall) {
       if (!finishReason) {
         throw new InvalidStreamError(
